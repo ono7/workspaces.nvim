@@ -105,10 +105,11 @@ local store_workspaces = function(workspaces)
         local date_str = workspace.last_opened or ""
         local type = workspace.type or ""
         local custom = workspace.custom or ""
-        if workspace.name:matches("%%.git") then
+        if string.match(workspace.name, "%%.git") then
             vim.notify("workspaces: skipped .git directory")
+        else
+            data = data .. string.format("%s\0%s\0%s\0%s\0%s\n", workspace.name, workspace.path, date_str, type, custom)
         end
-        data = data .. string.format("%s\0%s\0%s\0%s\0%s\n", workspace.name, workspace.path, date_str, type, custom)
     end
     util.file.write(config.path, data)
 end
