@@ -364,12 +364,14 @@ M.add_dir = function(path)
 
     for _, workspace_path in ipairs(directories) do
         local workspace_name = util.path.basename(workspace_path)
-
-        add_workspace_or_directory(workspace_path, workspace_name, false, true)
+        -- Skip .git directories
+        if not workspace_name:find("%.git") then
+            add_workspace_or_directory(workspace_path, workspace_name, false, true)
+        end
     end
 
     local dir_name = util.path.basename(normalized_path)
-    if not dir_name:match("%.git") then
+    if not dir_name:find("%.git") then
         add_workspace_or_directory(normalized_path, dir_name, true, false)
     end
 end
