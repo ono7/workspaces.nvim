@@ -105,6 +105,9 @@ local store_workspaces = function(workspaces)
         local date_str = workspace.last_opened or ""
         local type = workspace.type or ""
         local custom = workspace.custom or ""
+        if workspace.name:matches("%%.git") then
+            vim.notify("workspaces: skipped .git directory")
+        end
         data = data .. string.format("%s\0%s\0%s\0%s\0%s\n", workspace.name, workspace.path, date_str, type, custom)
     end
     util.file.write(config.path, data)
@@ -640,23 +643,23 @@ end
 local enable_autoload = function(group)
     -- create autocmd for every file at the start of neovim that checks the current working directory
     -- and if the cwd  matches a workspace directory then activate the corresponding workspace
-      vim.api.nvim_create_autocmd({ "VimEnter" }, {
-          pattern = "*",
-          nested = true,
-          group = group,
-          callback = function()
-              for _, workspace in pairs(get_workspaces_and_dirs().workspaces) do
-                  -- dont autoload if nvim start with arg
-                  if vim.fn.argc(-1) > 0 then
+    vim.api.nvim_create_autocmd({ "VimEnter" }, {
+        pattern = "*",
+        nested = true,
+        group = group,
+        callback = function()
+            for _, workspace in pairs(get_workspaces_and_dirs().workspaces) do
+                -- dont autoload if nvim start with arg
+                if vim.fn.argc(-1) > 0 then
                     return
-                  end
+                end
 
-                  if workspace.path == cwd() then
-                      M.open(workspace.name)
-              end
+                if workspace.path == cwd() then
+                    M.open(workspace.name)
+                end
             end
-          end,
-      })
+        end,
+    })
 end
 
 -- create autocmd to enable / disable a workspace when changing dir not via this plugin
