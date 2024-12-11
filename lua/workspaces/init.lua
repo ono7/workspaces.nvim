@@ -105,11 +105,7 @@ local store_workspaces = function(workspaces)
         local date_str = workspace.last_opened or ""
         local type = workspace.type or ""
         local custom = workspace.custom or ""
-        if string.match(workspace.path, "%.git$") then
-            vim.notify("workspaces: skipped .git directory")
-        else
-            data = data .. string.format("%s\0%s\0%s\0%s\0%s\n", workspace.name, workspace.path, date_str, type, custom)
-        end
+        data = data .. string.format("%s\0%s\0%s\0%s\0%s\n", workspace.name, workspace.path, date_str, type, custom)
     end
     util.file.write(config.path, data)
 end
@@ -373,7 +369,9 @@ M.add_dir = function(path)
     end
 
     local dir_name = util.path.basename(normalized_path)
-    add_workspace_or_directory(normalized_path, dir_name, true, false)
+    if not dir_name:match("%.git") then
+        add_workspace_or_directory(normalized_path, dir_name, true, false)
+    end
 end
 
 -- This function is a legacy of the older api, but it's not worth
